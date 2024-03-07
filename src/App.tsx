@@ -1,11 +1,11 @@
 import React from "react";
 import logo from "./logo.svg";
-import "./App.css";
+import "./App.scss";
 import JurisdictionList from "./components/List/List";
 
 function App() {
   return (
-    <div className="App">
+    <div className="h-screen flex items-start justify-center text-center bg-background">
       <JurisdictionList></JurisdictionList>
     </div>
   );

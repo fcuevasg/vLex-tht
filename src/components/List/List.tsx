@@ -7,6 +7,7 @@ import { FC, useEffect, useState } from 'react'
 import { fetchJurisdictions, fetchSubJurisdictions } from '../../API/fakeJurisdictionsApi'
 import { JurisdictionType } from '../../API/fakeJurisdictionType'
 import { Alert, CircularProgress } from '@mui/material'
+import HeroText from '../HeroText/HeroText'
 
 const JurisdictionList: FC = () => {
 
@@ -46,7 +47,7 @@ const JurisdictionList: FC = () => {
 	//Needed for the recursive rendering of the tree
 	const renderTreeItems = (jurisdiction: JurisdictionType) => {
 		return (
-			<TreeItem className='treeItem' key={jurisdiction.id} nodeId={jurisdiction.id.toString()} label={<div onClick={(event) => handleClickJurisdiction(event, jurisdiction)}>{jurisdiction.name}</div>}>
+			<TreeItem className="mb-4 text-l font-extrabold leading-none tracking-tight md:text-m lg:text-xl mt-6" key={jurisdiction.id} nodeId={jurisdiction.id.toString()} label={<div onClick={(event) => handleClickJurisdiction(event, jurisdiction)}>{jurisdiction.name}</div>}>
 				{jurisdiction.subJurisdictions &&
 					jurisdiction.subJurisdictions.map(function (subJurisdiction) {
 						return renderTreeItems(subJurisdiction)
@@ -72,18 +73,18 @@ const JurisdictionList: FC = () => {
 
 	return (
 		<Box sx={{ minHeight: 220, flexGrow: 1, maxWidth: 600 }}>
+			<HeroText text={selectedJurisdiction?.name || ""} />
 			{errors ? (
 				<div>
-					<Alert className='alerts' severity='error'>
+					<Alert className='absolute top-3 right-3' severity='error'>
 						{errors}
 					</Alert>
 				</div>
 			) : (
-				<TreeView className='treeView' aria-label='multi-select' defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} multiSelect>
+				<TreeView className='treeView text-left' aria-label='multi-select' defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} multiSelect >
 					{jurisdictions ? (
 						<>
-							<h1>Jurisdictions</h1>
-							{selectedJurisdiction ? <h3>Selected jurisdiction: {selectedJurisdiction.name}</h3> : <></>}
+							
 							{!loading ? jurisdictions.map(renderTreeItems) : <CircularProgress />}
 						</>
 					) : (

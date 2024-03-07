@@ -181,7 +181,7 @@ export async function fetchJurisdictions(): Promise<JurisdictionType[]> {
 	await delay(500)
 	const jurisdictions = fakeJurisdictionsData.map((j) => ({ id: j.id, name: j.name }))
 	//Added a 50% chance to fail just to show the error handling
-	return Math.random() > 0.5 ? Promise.resolve(jurisdictions) : Promise.reject(new Error('Failed to fetch jurisdictions'))
+	return Math.random() > 0.9 ? Promise.resolve(jurisdictions) : Promise.reject(new Error('Failed to fetch jurisdictions'))
 }
 
 function findJurisdictionRecursive(jurisdictions: JurisdictionType[], jurisdictionId: number): JurisdictionType | null {
