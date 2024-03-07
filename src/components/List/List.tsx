@@ -1,8 +1,4 @@
 import Box from '@mui/material/Box'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { TreeView } from '@mui/x-tree-view/TreeView'
-import { TreeItem } from '@mui/x-tree-view/TreeItem'
 import { FC, useEffect, useState } from 'react'
 import { fetchJurisdictions, fetchSubJurisdictions } from '../../API/fakeJurisdictionsApi'
 import { JurisdictionType } from '../../API/fakeJurisdictionType'
@@ -10,25 +6,30 @@ import { Alert, CircularProgress } from '@mui/material'
 import HeroText from '../HeroText/HeroText'
 
 const JurisdictionList: FC = () => {
-
 	//States
 	const [jurisdictions, setJurisdictions] = useState<JurisdictionType[]>()
 	const [errors, setErrors] = useState<string>()
 	const [loading, setLoading] = useState<boolean>(false)
-	const [selectedJurisdiction, setSelectedJurisdiction] = useState<JurisdictionType>()
-
+	const [selectedJurisdiction, setSelectedJurisdiction] = useState<JurisdictionType[]>([])
+	const [title, setTitle] = useState<string[]>([])
 
 	//Logic to handle events
-	const handleClickJurisdiction = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, jurisdiction: JurisdictionType) => {
+	const handleClickJurisdiction = (event: any, jurisdiction: JurisdictionType) => {
 		event.stopPropagation() //Needed for MaterialUI to not collapse the tree when clicking on a jurisdiction
 		setLoading(true)
-		setSelectedJurisdiction(jurisdiction)
-		fetchSubJurisdictions(jurisdiction.id).then((subJurisdictions) => {
-			//Make it recursively search for the jurisdiction and update the subJurisdictions
-			const JurisdictionsWithSubs = updateJurisdictionsWithSubs(jurisdictions, jurisdiction.id, subJurisdictions) //Make it recursively search for the jurisdiction and update the subJurisdictions
-			setJurisdictions(JurisdictionsWithSubs)
-			setLoading(false)
-		})
+		setSelectedJurisdiction([...selectedJurisdiction, jurisdiction])
+		setTitle([...title, jurisdiction.name])
+		fetchSubJurisdictions(jurisdiction.id)
+			.then((subJurisdictions) => {
+				//Make it recursively search for the jurisdiction and update the subJurisdictions
+				const JurisdictionsWithSubs = updateJurisdictionsWithSubs(jurisdictions, jurisdiction.id, subJurisdictions) //Make it recursively search for the jurisdiction and update the subJurisdictions
+				setJurisdictions(JurisdictionsWithSubs)
+        setErrors('') //clean the errors
+				setLoading(false)
+			})
+			.catch((error) => {
+				setErrors(error.message)
+			})
 	}
 
 	//Logic to update the jurisdictions with the subJurisdictions
@@ -47,12 +48,14 @@ const JurisdictionList: FC = () => {
 	//Needed for the recursive rendering of the tree
 	const renderTreeItems = (jurisdiction: JurisdictionType) => {
 		return (
-			<TreeItem className="mb-4 text-l font-extrabold leading-none tracking-tight md:text-m lg:text-xl mt-6" key={jurisdiction.id} nodeId={jurisdiction.id.toString()} label={<div onClick={(event) => handleClickJurisdiction(event, jurisdiction)}>{jurisdiction.name}</div>}>
+			<Box className='relative ml-8 mb-2 '>
+				<input type='checkbox' checked={selectedJurisdiction.some((jur) => jur.id === jurisdiction.id)} onChange={(event) => handleClickJurisdiction(event, jurisdiction)} />
+				<label className='ml-2'>{jurisdiction.name}</label>
 				{jurisdiction.subJurisdictions &&
 					jurisdiction.subJurisdictions.map(function (subJurisdiction) {
 						return renderTreeItems(subJurisdiction)
 					})}
-			</TreeItem>
+			</Box>
 		)
 	}
 
@@ -73,7 +76,7 @@ const JurisdictionList: FC = () => {
 
 	return (
 		<Box sx={{ minHeight: 220, flexGrow: 1, maxWidth: 600 }}>
-			<HeroText text={selectedJurisdiction?.name || ""} />
+			<HeroText text={title.join(', ') || ''} />
 			{errors ? (
 				<div>
 					<Alert className='absolute top-3 right-3' severity='error'>
@@ -81,18 +84,15 @@ const JurisdictionList: FC = () => {
 					</Alert>
 				</div>
 			) : (
-				<TreeView className='treeView text-left' aria-label='multi-select' defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} multiSelect >
+				<Box className='text-left text-xl'>
 					{jurisdictions ? (
-						<>
-							
-							{!loading ? jurisdictions.map(renderTreeItems) : <CircularProgress />}
-						</>
+						<>{!loading ? jurisdictions.map(renderTreeItems) : <CircularProgress />}</>
 					) : (
-						<Box sx={{ minHeight: 220, flexGrow: 1, maxWidth: 600 }}>
+						<Box className='text-center flex items-start justify-center text-center mt-5'>
 							<CircularProgress />
 						</Box>
 					)}
-				</TreeView>
+				</Box>
 			)}
 		</Box>
 	)
