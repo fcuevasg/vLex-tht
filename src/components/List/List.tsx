@@ -17,14 +17,23 @@ const JurisdictionList: FC = () => {
 	const handleClickJurisdiction = (event: any, jurisdiction: JurisdictionType) => {
 		event.stopPropagation() //Needed for MaterialUI to not collapse the tree when clicking on a jurisdiction
 		setLoading(true)
-		setSelectedJurisdiction([...selectedJurisdiction, jurisdiction])
-		setTitle([...title, jurisdiction.name])
+		//If the jurisdiction is already selected, remove it from the list
+		if (selectedJurisdiction.some((jur) => jur.id === jurisdiction.id)) {
+			const newSelectedJurisdiction = selectedJurisdiction.filter((jur) => jur.id !== jurisdiction.id)
+			const newTitle = title.filter((t) => t !== jurisdiction.name)
+			setSelectedJurisdiction(newSelectedJurisdiction)
+			setTitle([...newTitle])
+		} else {
+			setSelectedJurisdiction([...selectedJurisdiction, jurisdiction])
+      setTitle([...title, jurisdiction.name])
+		}
+
 		fetchSubJurisdictions(jurisdiction.id)
 			.then((subJurisdictions) => {
 				//Make it recursively search for the jurisdiction and update the subJurisdictions
 				const JurisdictionsWithSubs = updateJurisdictionsWithSubs(jurisdictions, jurisdiction.id, subJurisdictions) //Make it recursively search for the jurisdiction and update the subJurisdictions
 				setJurisdictions(JurisdictionsWithSubs)
-        setErrors('') //clean the errors
+				setErrors('') //clean the errors
 				setLoading(false)
 			})
 			.catch((error) => {
