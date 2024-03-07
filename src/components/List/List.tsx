@@ -25,7 +25,7 @@ const JurisdictionList: FC = () => {
 			setTitle([...newTitle])
 		} else {
 			setSelectedJurisdiction([...selectedJurisdiction, jurisdiction])
-      setTitle([...title, jurisdiction.name])
+			setTitle([...title, jurisdiction.name])
 		}
 
 		fetchSubJurisdictions(jurisdiction.id)
@@ -57,7 +57,7 @@ const JurisdictionList: FC = () => {
 	//Needed for the recursive rendering of the tree
 	const renderTreeItems = (jurisdiction: JurisdictionType) => {
 		return (
-			<Box className='relative ml-8 mb-2 '>
+			<Box key={jurisdiction.id} className='relative ml-8 mb-2 '>
 				<input type='checkbox' checked={selectedJurisdiction.some((jur) => jur.id === jurisdiction.id)} onChange={(event) => handleClickJurisdiction(event, jurisdiction)} />
 				<label className='ml-2'>{jurisdiction.name}</label>
 				{jurisdiction.subJurisdictions &&
@@ -93,11 +93,11 @@ const JurisdictionList: FC = () => {
 					</Alert>
 				</div>
 			) : (
-				<Box className='text-left text-xl'>
+				<Box className='text-center flex items-start justify-center text-xl'>
 					{jurisdictions ? (
-						<>{!loading ? jurisdictions.map(renderTreeItems) : <CircularProgress />}</>
+						<div className='text-left'>{!loading ? jurisdictions.map(renderTreeItems) : <CircularProgress className='  text-center' />}</div>
 					) : (
-						<Box className='text-center flex items-start justify-center text-center mt-5'>
+						<Box className='text-flex items-start justify-center text-center mt-5'>
 							<CircularProgress />
 						</Box>
 					)}
